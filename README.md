@@ -5,7 +5,7 @@ Cpp 17+ studies and exercises from "C++ CrashCourse" by Josh Lospinoso Exercises
 ## Description
 
 I wanted to make sure that when I was working on new cpp projects that I could focus on the theory/math/concepts 
-I set out to learn, and not be held back by the language.
+I set out to learn, and not be held back by knowledge of the language.
 
 ## Exercises cover
 
