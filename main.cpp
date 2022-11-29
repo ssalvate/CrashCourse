@@ -1,97 +1,47 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-// Ch 19.3
+#include <algorithm>
+#include <vector>
+#include <utility>
 
-#include <queue>
-#include <mutex>
-#include <array>
-#include <future>
-#include <condition_variable>
+int solution(std::vector<int>& A) {
+    //Sort Array [-1,0,2,3,8]
+    if (A.size() == 2) return 0;
+    std::vector<int> C{ A };
+    std::sort(C.begin(), C.end());
 
-struct TinyObj {
-	TinyObj() {}
-	TinyObj(std::string id, std::array<int, 5> v) :ID{ id }, values{v} {}
+    //prev value = A[0]
 
-	std::string ID;
-	std::array<int, 5> values;
+    std::pair<int, int> biggest_gap{};
+    //loop thru array A[i]
+    int prev = C[0];
+    for (size_t i{ 1 }; i < C.size(); i++) {
+        if (C[i] - 1 != prev) {
+            if (C[i] - prev > biggest_gap.second) {
+                biggest_gap.first = C[i];
+                biggest_gap.second = C[i] - prev;
+            }
+        }
+        prev = C[i];
+    }
+    //if  A[i] - 1 !== prev: Difference if Bigger than last diff. Also Store map<location(i.e.8), gap size>
+    if (biggest_gap.second % 2 == 0)
+        return biggest_gap.first - biggest_gap.second / 2;
+    else
+        return biggest_gap.first - biggest_gap.second - 1;
+    //After loop take location and subtract gap size/2 -1 if odd
+    //This is location
+    //Need something extra to deal with neg?
 
-};
-
-template <typename T>
-struct SafeQueue {
-	std::condition_variable cv;
-	std::queue<T> queue;
-	mutable std::mutex mut; //Mutable allows for use in the const methods
-
-	SafeQueue() {}
-	~SafeQueue() {}
-
-	void push(T elem) {
-		std::lock_guard<std::mutex> lock(mut);
-		std::cout << elem << " added to Q" << std::endl;
-		queue.push(elem);
-		cv.notify_all();
-	}
-	
-	void pop() {
-		std::lock_guard<std::mutex> lock(mut);
-		return queue.pop();
-	}
-
-	void wait_and_pop() {
-		std::unique_lock<std::mutex> lock(mut);
-		std::cout << "Pop Check" << std::endl;
-		cv.wait(lock);
-		cv.wait(lock, [this] {
-			return this->queue.size() > 4; //Condition that also must be met, besides wakeup call from cv.notify()
-			});
-		std::cout << "Wait over"<< std::endl;
-		queue.pop();
-	}
-
-	bool empty() const {
-		std::lock_guard<std::mutex> lock(mut);
-		return queue.empty();
-	}
-	size_t size() const {
-		std::lock_guard<std::mutex> lock(mut);
-		return queue.size();
-	}
-
-};
+}
 
 int main() {
+    std::vector<int> a{ 1, 3, 6, 4, 1, 2 };
+    std::vector<bool> present(a.size() + 1, false); // +1 cause 1 missing
+    printf("present size is : %i\n", present.size());
+    std::vector<int> test{ 5,5 };
+    int result = solution(test);
+    printf("Result =  %i", test.size());
 
-	SafeQueue<int> my_Q;
-
-	TinyObj to1{ "First", std::array<int, 5>{1,2,3,4,5} };
-	TinyObj to2{ "Second", std::array<int, 5>{5,4,3,2,1} };
-
-	auto tp = std::async(std::launch::async, [&] {
-		my_Q.wait_and_pop();
-		});
-	auto t1 = std::async(std::launch::async, [&] {
-		my_Q.push(1);
-		my_Q.push(2);
-		my_Q.push(3);
-		});
-	auto t2 = std::async(std::launch::async, [&] {
-		my_Q.push(4);
-		my_Q.push(5);
-		my_Q.push(6);
-		my_Q.push(7);
-		});
-	auto t3 = std::async(std::launch::async, [&] {
-		my_Q.push(8);
-		my_Q.push(9);
-		my_Q.push(10);
-		});
-
-	tp.wait();
-	t1.wait();
-	t2.wait();
-	t3.wait();
-
-	std::cout << "Size of Q is : " << my_Q.size() << std::endl;
 }
