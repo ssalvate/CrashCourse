@@ -1,6 +1,6 @@
 # CrashCourse
 
-Cpp 17+ studies and exercises from "C++ CrashCourse" by Josh Lospinoso Exercises
+Cpp 17+ studies and exercises from "C++ CrashCourse" by Josh Lospinoso Exercises. To use exercise code; replace main.cpp with code from exercise file.
 
 ## Description
 
